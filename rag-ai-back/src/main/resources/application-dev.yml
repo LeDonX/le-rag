@@ -1,0 +1,13 @@
+app:
+  storage:
+    type: local
+    base-dir: D:/Java/IdeaProjects/rag-ai/data/uploads
+    download-dir: D:/Java/IdeaProjects/rag-ai/data/downloads
+spring:
+  ai:
+#    ollama:
+#      base-url: http://localhost:11434
+#      chat:
+#        model: qwen3.5:9b
+#      embedding:
+#        model: qwen3-embedding:8b

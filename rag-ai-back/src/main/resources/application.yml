@@ -1,0 +1,101 @@
+server:
+  port: 8989
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  profiles:
+    active: dev
+  ai:
+    websearch:
+      api-key:  ${websearch.api-key}
+      searxng:
+        url: "http://127.0.0.1:8080/search"
+        nums: 10
+        engines: "duckduckgo,google,bing,brave,mojeek,presearch,qwant,startpage,yahoo,arxiv,crossref,google_scholar,internetarchivescholar,semantic_scholar"
+
+    dashscope:
+      api-key: ${ali_key}
+      image:
+        options:
+          model: wan2.2-t2i-plus
+    ollama:
+      base-url: http://localhost:11434
+      chat:
+        model: qwen3.5:9b
+      embedding:
+        model: qwen3-embedding:8b
+
+    vectorstore:
+      milvus:
+        client:
+          host: "localhost" # default: localhost
+          port: 19530 # default: 19530
+          username: "ledon" # default: root
+          password: "password" # default: milvus
+        databaseName: "milvus_db"
+        collectionName: "vector_store" # default: vector_store
+        embeddingDimension: 4096 # default: 1536
+        indexType: IVF_FLAT # default: IVF_FLAT
+        metricType: COSINE # default: COSINE
+        initializeSchema: true # 自动创建集合
+  datasource:
+    username: root
+    password: password
+    url: jdbc:mysql://localhost:3306/le_rag?serverTimezone=UTC
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+
+  data:
+    redis:
+      port: 6379              # Redis 服务器端口，默认为 6379
+#      password:               # Redis 密码，默认为空
+      timeout: 5000ms         # 连接超时时间
+      lettuce:
+        pool:
+          max-active: 8       # 最大连接数
+          max-idle: 4         # 最大空闲连接数
+          min-idle: 1         # 最小空闲连接数
+          max-wait: 2000ms
+aliyun:
+#  alioss:
+#    endpoint: oss-cn-shenzhen.aliyuncs.com
+#    access-key-id: ${alioss.access-key-id}
+#    access-key-secret: ${alioss.access-key-secret}
+#    bucket-name: le-rag
+
+app:
+  storage:
+    type: local
+    base-dir: D:/Java/IdeaProjects/rag-ai/data/uploads
+    download-dir: D:/Java/IdeaProjects/rag-ai/data/downloads
+
+le:
+  jwt:
+    # 设置jwt签名加密时使用的秘钥
+    admin-secret-key: le_jwt_secret_key_for_admin_access_256_bits_required
+    # 设置jwt过期时间
+    admin-ttl: 7200000
+    # 设置前端传递过来的令牌名称
+    admin-token-name: token
+    user-secret-key: le_jwt_secret_key_for_user_access_256_bits_required
+    user-ttl: 7200000
+    user-token-name: authorization
+  websearch:
+    api-key: ""
+super-sql:
+  init-train: false
+  scope: ALONE  # ALL 整库训练, ALONE 单库训练
+  schemas:
+    - schema: le_rag  # 指定数据库
+
+logging:
+  level:
+    org:
+      springframework:
+        ai:
+          chat:
+            client:
+              advisor: debug
