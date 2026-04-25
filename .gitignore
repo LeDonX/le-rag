@@ -3,6 +3,9 @@ target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+COMPLETE_LEARNING_ROADMAP.md
+MODULE_READING_GUIDE.md
+PROJECT_ANALYSIS.md
 
 ### STS ###
 .apt_generated
