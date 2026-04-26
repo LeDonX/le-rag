@@ -167,6 +167,17 @@ const sendMessage = async (url: string, selectedFileIds: string[] = []) => {
   const reactiveMessage = messages.value[lastIndex]
   // --- 修改结束 ---
 
+  const finishStream = (fallbackMessage?: string) => {
+    if (
+        fallbackMessage &&
+        (!reactiveMessage.content || reactiveMessage.content === "正在思考中...")
+    ) {
+      reactiveMessage.content = fallbackMessage;
+    }
+    isLoading.value = false;
+    reactiveMessage.isTyping = false;
+  };
+
   // 如果初始内容是"正在思考中..."，在收到第一个字符时可能需要清空它，或者保留它
   // 这里假设你想保留"正在思考中..."直到流开始，或者直接覆盖，下面逻辑稍微调整一下:
   // 建议：初始 content 设为 ''，或者在收到第一个包时清空 '正在思考中...'
@@ -197,12 +208,12 @@ const sendMessage = async (url: string, selectedFileIds: string[] = []) => {
       scrollToBottom()
 
     }, (error) => {
-      window.console.error('Error:', error)
-      reactiveMessage.content = '抱歉，发生了错误，请稍后重试。'
-    }, () => { 
-      isLoading.value = false
-      reactiveMessage.isTyping = false
-    }, fileSources)
+          window.console.error('Error:', error);
+          finishStream('抱歉，发生了错误，请稍后重试。');
+        },
+        () => {
+          finishStream();
+        }, fileSources)
   } else {
     // 无文件选择时，不传递sources参数
     getStreamChat(currentInput, url, (value) => {
@@ -221,12 +232,12 @@ const sendMessage = async (url: string, selectedFileIds: string[] = []) => {
       scrollToBottom()
 
     }, (error) => {
-      window.console.error('Error:', error)
-      reactiveMessage.content = '抱歉，发生了错误，请稍后重试。'
-    }, () => { 
-      isLoading.value = false
-      reactiveMessage.isTyping = false
-    })
+          window.console.error('Error:', error);
+          finishStream('抱歉，发生了错误，请稍后重试。');
+        },
+        () => {
+          finishStream();
+        })
   }
 };
 

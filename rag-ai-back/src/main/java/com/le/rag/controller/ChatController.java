@@ -53,7 +53,7 @@ public class ChatController {
     }
 
     @Operation(summary = "stream",description = "流式对话接口")
-    @GetMapping(value = "/stream",produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @PostMapping(value = "/stream",produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @Loggable("message")
     public Flux<String> streamRagChat(@RequestParam(value = "message", defaultValue = "你好" ) String message,
                                       @RequestParam(value = "prompt", defaultValue = "你是一名AI助手，致力于帮助人们解决问题.") String prompt){

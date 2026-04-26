@@ -1,162 +1,156 @@
-import { fetchEventSource } from "@microsoft/fetch-event-source";
+import {fetchEventSource} from "@microsoft/fetch-event-source";
 import {BASE_URL} from "@/http/config.ts";
 import service from "@/http";
 
-class FatalError extends Error {}
-class RetriableError extends Error {}
-
 type ResultCallBack = (e: any | null) => void;
 
-const BaseUrl = BASE_URL;
+export interface StreamTask {
+    request: Promise<void>;
+    abort: () => void;
+}
+
+interface CreateStreamOptions {
+    body: BodyInit;
+    headers?: Record<string, string>;
+    onMessage: ResultCallBack;
+    onError: ResultCallBack;
+    onClose: ResultCallBack;
+}
+
+const createStreamTask = (
+    url: string,
+    options: CreateStreamOptions
+): StreamTask => {
+    const ctrl = new AbortController();
+    const request = fetchEventSource(url, {
+        method: "POST",
+        headers: {
+            Accept: "text/event-stream",
+            ...(options.headers ?? {}),
+        },
+        body: options.body,
+        signal: ctrl.signal,
+        openWhenHidden: true,
+        async onopen(response: Response) {
+            const contentType = response.headers.get("content-type") || "";
+            if (response.status === 401) {
+                const module = await import("@/api/authUtils");
+                module.default();
+                throw new Error("HTTP 401 Unauthorized");
+            }
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            if (!contentType.startsWith("text/event-stream")) {
+                throw new Error(`Expected text/event-stream, got ${contentType}`);
+            }
+        },
+        onmessage(event) {
+            options.onMessage(event);
+        },
+        onclose() {
+            options.onClose(null);
+        },
+        onerror(err) {
+            options.onError(err);
+            throw err;
+        },
+    });
+    return {
+        request,
+        abort: () => ctrl.abort(),
+    };
+};
 export const postStreamChat = (
     author: string,
     onMessage: ResultCallBack,
     onError: ResultCallBack,
     onClose: ResultCallBack
-) => {
-    const ctrl = new AbortController();
-    fetchEventSource(BaseUrl + "/post-chat", {
-        method: "POST",
+): StreamTask => {
+    return createStreamTask(`${BASE_URL}/post-chat`, {
+        body: JSON.stringify({author}),
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-            author: author,
-        }),
-        signal: ctrl.signal,
-        onmessage: onMessage,
-        onerror: (err: any) => {
-            onError(err);
-        },
-        onclose: () => {
-            onClose(null);
-        },
-        onopen: async (response: any) => {
-            if (response.ok) {
-                return;
-            } else if (
-                response.status >= 400 &&
-                response.status < 500 &&
-                response.status !== 429
-            ) {
-                // 不再抛出FatalError，防止自动重试
-                // 直接调用onError回调
-                onError(new Error(`HTTP ${response.status}: ${response.statusText}`));
-                // 返回一个永远不会resolve的Promise，终止连接
-                return new Promise(() => {});
-            } else {
-                // 不再抛出RetriableError，防止自动重试
-                // 直接调用onError回调
-                onError(new Error(`HTTP ${response.status}: ${response.statusText}`));
-                // 返回一个永远不会resolve的Promise，终止连接
-                return new Promise(() => {});
-            }
-        },
+        onMessage,
+        onError,
+        onClose,
     });
 };
-
-export const getStreamChat = (
+// 兼容两种调用方式：
+// 1) getStreamChat(message, onMessage, onError, onClose)
+// 2) getStreamChat(message, url, onMessage, onError, onClose, sources)
+export function getStreamChat(
     message: string,
-    url: string = "/chat/stream",
+    onMessage: ResultCallBack,
+    onError: ResultCallBack,
+    onClose: ResultCallBack
+): StreamTask;
+export function getStreamChat(
+    message: string,
+    url: string,
     onMessage: ResultCallBack,
     onError: ResultCallBack,
     onClose: ResultCallBack,
     sources?: string[]
-) => {
-    const ctrl = new AbortController();
-    
-    // 统一使用POST请求发送数据
-    const formData = new FormData();
-    formData.append('message', message);
-    if (sources && sources.length > 0) {
-        sources.forEach(source => {
-            formData.append('sources', source);
+): StreamTask;
+export function getStreamChat(
+    message: string,
+    arg2: string | ResultCallBack,
+    arg3: ResultCallBack,
+    arg4: ResultCallBack,
+    arg5?: ResultCallBack,
+    arg6?: string[]
+): StreamTask {
+    if (typeof arg2 === "string") {
+        const url = arg2;
+        const onMessage = arg3;
+        const onError = arg4;
+        if (!arg5) {
+            throw new Error("onClose callback is required");
+        }
+        const onClose = arg5;
+        const sources = arg6 ?? [];
+        const formData = new FormData();
+        formData.append("message", message);
+        if (sources.length > 0) {
+            sources.forEach((source) => {
+                formData.append("sources", source);
+            });
+        }
+        return createStreamTask(`${service.defaults.baseURL}${url}`, {
+            body: formData,
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+            },
+            onMessage,
+            onError,
+            onClose,
         });
     }
-    
-    fetchEventSource(service.defaults.baseURL + url, {
-        method: "POST",
-        headers: {
-            "Authorization": `Bearer ${localStorage.getItem("token") || ""}`
-        },
+    const onMessage = arg2;
+    const onError = arg3;
+    const onClose = arg4;
+    const formData = new FormData();
+    formData.append("message", message);
+    return createStreamTask(`${service.defaults.baseURL}/chat/stream`, {
         body: formData,
-        signal: ctrl.signal,
-        onmessage: onMessage,
-        onerror: (err: any) => {
-            onError(err);
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
         },
-        onclose: () => {
-            onClose(null);
-        },
-        onopen: async (response: any) => {
-            if (response.ok) {
-                return;
-            } 
-            else if (response.status === 401) {
-                // 处理401未授权错误
-                import('@/api/authUtils').then(module => {
-                module.default();
-                });
-            }
-            else{
-                // 不再抛出RetriableError，防止自动重试
-                // 直接调用onError回调
-                onError(new Error(`HTTP ${response.status}: ${response.statusText}`));
-                // 返回一个永远不会resolve的Promise，终止连接
-                return new Promise(() => {});
-            }
-        },
+        onMessage,
+        onError,
+        onClose,
     });
-};
+}
 
-// 专门用于POST请求的流式聊天函数
 export const postStreamChatWithSources = (
     message: string,
     sources: string[],
     url: string = "/ai/rag",
     onMessage: ResultCallBack,
     onError: ResultCallBack,
-    onClose: ResultCallBack,
-) => {
-    const ctrl = new AbortController();
-    
-    const formData = new FormData();
-    formData.append('message', message);
-    sources.forEach(source => {
-        formData.append('sources', source);
-    });
-    
-    fetchEventSource(service.defaults.baseURL + url, {
-        method: "POST",
-        headers: {
-            "Authorization": `Bearer ${localStorage.getItem("token") || ""}`
-        },
-        body: formData,
-        signal: ctrl.signal,
-        onmessage: onMessage,
-        onerror: (err: any) => {
-            onError(err);
-        },
-        onclose: () => {
-            onClose(null);
-        },
-        onopen: async (response: any) => {
-            if (response.ok) {
-                return;
-            } 
-            else if (response.status === 401) {
-                // 处理401未授权错误
-                import('@/api/authUtils').then(module => {
-                module.default();
-                });
-            }
-            else{
-                // 不再抛出RetriableError，防止自动重试
-                // 直接调用onError回调
-                onError(new Error(`HTTP ${response.status}: ${response.statusText}`));
-                // 返回一个永远不会resolve的Promise，终止连接
-                return new Promise(() => {});
-            }
-        },
-    });
+    onClose: ResultCallBack
+): StreamTask => {
+    return getStreamChat(message, url, onMessage, onError, onClose, sources);
 };
