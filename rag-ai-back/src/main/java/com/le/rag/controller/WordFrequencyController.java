@@ -80,7 +80,4 @@ public class WordFrequencyController {
         return ResultUtils.success(dataList);
     }
 
-
-
-
 }

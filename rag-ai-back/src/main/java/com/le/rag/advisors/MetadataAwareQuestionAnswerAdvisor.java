@@ -17,15 +17,15 @@ public class MetadataAwareQuestionAnswerAdvisor implements BaseAdvisor {
     private static final PromptTemplate DEFAULT_PROMPT_TEMPLATE = new PromptTemplate("""
 			{query}
 
-			Context information is below, surrounded by ---------------------
+			背景信息如下，围绕着 ---------------------
 
 			---------------------
 			{question_answer_context}
 			---------------------
 
-			Given the context and provided history information and not prior knowledge,
-			reply to the user comment. If the answer is not in the context, inform
-			the user that you can't answer the question.
+			鉴于上下文和提供历史信息，而非先前的知识，
+			回复用户评论。如果答案不符合上下文，请告知
+			你无法回答问题的用户。
 			""");
     @Override  
     public ChatClientRequest before(ChatClientRequest baseRequest, AdvisorChain advisorChain) {
@@ -35,14 +35,12 @@ public class MetadataAwareQuestionAnswerAdvisor implements BaseAdvisor {
 
         String userMessage = (String) baseRequest.context().get("userMessage");
 
-
-
         if(!CollectionUtils.isEmpty(documents)) {
-            String documentContext = documents == null ? ""
-                    : documents.stream().map(doc -> doc.getText()+"\n来源文件:"+doc.getMetadata().getOrDefault("source", "unknown").toString()).collect(Collectors.joining(System.lineSeparator()));
+            String documentContext = documents.stream()
+                    .map(doc -> doc.getText()+"\n来源文件:"+doc.getMetadata().getOrDefault("source", "unknown").toString())
+                    .collect(Collectors.joining(System.lineSeparator()));
 
             // 重新构建prompt，在末尾添加source信息
-
             String augmentedUserText = DEFAULT_PROMPT_TEMPLATE
                     .render(Map.of("query", userMessage, "question_answer_context", documentContext));
 

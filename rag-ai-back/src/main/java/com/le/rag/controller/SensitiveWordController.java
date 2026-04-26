@@ -83,5 +83,4 @@ public class SensitiveWordController {
         return sensitiveWordService.list();
     }
 
-
 }

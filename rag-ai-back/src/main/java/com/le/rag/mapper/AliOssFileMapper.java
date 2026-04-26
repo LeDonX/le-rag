@@ -9,7 +9,6 @@ import org.apache.ibatis.annotations.Mapper;
 /**
 * @author LeDon
 * @description 针对表【ali_oss_file】的数据库操作Mapper
-* @createDate 2025-02-08 20:51:33
 * @Entity com.le.rag.entity.AliOssFile
 */
 

@@ -5,12 +5,12 @@ public class ApplicationConstant {
     public final static String APPLICATION_NAME = "rag-ai";
 
     public final static String DEFAULT_BASE_URL = "https://api.openai.com";
-    public final static String DEFAULT_DESCRIBE = "分享自公众号:程序员徐庶";
+    public final static String DEFAULT_DESCRIBE = "LeDon";
     public final static String SYSTEM_PROMPT = """
-        Use the information from the DOCUMENTS section to provide accurate answers but act as if you knew this information innately.
-        If unsure, simply state that you don't know.
-        Another thing you need to note is that your reply must be in Chinese!
-        DOCUMENTS:
+        利用“文件”部分的信息提供准确答案，但表现得好像你已经天生了解这些信息。
+        如果不确定，只需说明你不知道。
+        你还需要注意，回复必须是中文！
+        文件：
             {documents}    
         """;
 }

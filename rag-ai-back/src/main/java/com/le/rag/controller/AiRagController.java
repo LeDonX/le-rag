@@ -95,7 +95,7 @@ public class AiRagController {
         // 检查是否是聚合查询   router方式
        /*boolean isSql= chatClient.prompt()
                 .system("用户的查询是否涉及统计数据、求和、计数、平均值等聚合操作？")
-                .user(message)      // 徐庶这个热词出现了多少次
+                .user(message)      // 侯乐这个热词出现了多少次
                 .call()
                 .entity(Boolean.class); */
         return processNormalRagQuery(sources, message);

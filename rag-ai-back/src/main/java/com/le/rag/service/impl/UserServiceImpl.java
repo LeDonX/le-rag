@@ -28,7 +28,6 @@ import java.util.List;
 /**
 * @author LeDon
 * @description 针对表【user】的数据库操作Service实现
-* @createDate 2025-02-14 21:05:04
 */
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User>
@@ -57,7 +56,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
         }
 
-        if (user.getStatus() == StatusConstant.DISABLE) {
+        if (user.getStatus().equals(StatusConstant.DISABLE)) {
             //账号被锁定
             throw new AccountLockedException(MessageConstant.ACCOUNT_LOCKED);
         }

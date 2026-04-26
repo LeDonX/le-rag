@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 /**
 * @author LeDon
 * @description 针对表【word_frequency】的数据库操作Service实现
-* @createDate 2025-03-06 15:56:07
 */
 @Service
 public class WordFrequencyServiceImpl extends ServiceImpl<WordFrequencyMapper, WordFrequency>

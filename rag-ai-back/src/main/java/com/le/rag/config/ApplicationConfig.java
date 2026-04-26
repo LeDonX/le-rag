@@ -12,7 +12,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * @author LeDon
- * @date 2025/2/8
  */
 
 @Configuration
@@ -35,7 +34,6 @@ public class ApplicationConfig implements WebMvcConfigurer {
         return builder.defaultSystem("你是一个乐于助人解决问题的AI机器人")
                 .build();
     }
-
 
     /**
      * 注册拦截器

@@ -30,9 +30,6 @@ public class LoggingAspect {
         logInfo.setClassName(joinPoint.getTarget().getClass().getName());
         logInfo.setRequestTime(new Date());
 
-
-
-
         // 获取参数值
         Object[] args = joinPoint.getArgs();
 
@@ -62,9 +59,7 @@ public class LoggingAspect {
             logInfo.setRequestParams(Arrays.toString(args));
         }
 
-
-
         logInfoService.save(logInfo);
     }
+
 }
-    

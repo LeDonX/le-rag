@@ -110,4 +110,5 @@ public class AliOssUtil {
     public Resource loadAsResource(String storedPath) {
         return new FileSystemResource(resolveAbsolutePath(storedPath));
     }
+
 }

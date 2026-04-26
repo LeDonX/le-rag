@@ -17,6 +17,7 @@ public class RagTool {
 
     @Autowired
     private ChatModel chatModel;
+
     @Tool(description = "涉及统计数据、求和、计数、平均值等聚合操作")
     public String getAggregationQuery(@ToolParam(description = "用户的提问") String question) {
         // 是聚合对话
@@ -29,4 +30,5 @@ public class RagTool {
 
         return JSON.toJSONString(object);
     }
+
 }

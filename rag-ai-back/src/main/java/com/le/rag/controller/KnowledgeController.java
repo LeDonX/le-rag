@@ -123,7 +123,6 @@ public class KnowledgeController {
         return ResultUtils.success("文件上传成功");
     }
 
-
     @Operation(summary = "contents",description = "文件查询")
     @GetMapping("/contents")
     public BaseResponse queryFiles(QueryFileDTO request){
@@ -145,8 +144,6 @@ public class KnowledgeController {
     public BaseResponse downloadFiles(@RequestParam List<Long> ids){
         return aliOssFileService.downloadFiles(ids);
     }
-
-
 
 
 }

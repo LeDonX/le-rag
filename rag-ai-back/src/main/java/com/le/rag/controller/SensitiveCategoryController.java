@@ -23,9 +23,6 @@ import java.util.List;
  * @Package com.le.rag.controller
  * @description: 敏感词分类控制器
  */
-
-
-
 @Tag(name = "SensitiveCategoryController", description = "敏感词分类控制器")
 @Slf4j
 @RestController
@@ -76,7 +73,5 @@ public class SensitiveCategoryController {
     public BaseResponse<List<SensitiveCategory>> list() {
         return ResultUtils.success(sensitiveCategoryService.list());
     }
-
-
 
 }

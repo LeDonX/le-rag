@@ -23,4 +23,5 @@ public class AliOssProperties {
      * 下载导出目录
      */
     private String downloadDir;
+
 }

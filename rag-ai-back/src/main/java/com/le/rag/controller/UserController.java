@@ -42,7 +42,6 @@ public class UserController {
     @Autowired
     private JwtProperties jwtProperties;
 
-
     /**
      * 修改密码
      */

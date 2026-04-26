@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
  * @Title: TaskJobScheduled
  * @Author LeDon
  * @Package com.le.rag.scheduled
- * @Date 2025/3/6 15:13
  * @description: 分词器定时任务
  */
 
@@ -32,13 +31,10 @@ public class TaskJobScheduled {
 
     @Autowired
     private LogInfoService logInfoService;
-
     @Autowired
     private WordFrequencyService wordFrequencyService;
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
-
-
 
     /**
  * 定时任务调度注解，用于标记需要定时执行的方法
@@ -82,7 +78,7 @@ public class TaskJobScheduled {
                 if (lexeme.getLength() <= 1){
                     continue;
                 }
-                // 字符过长不统计， 没有意义
+                // 字符过长不统计，没有意义
                 if (lexeme.getLength() >=10){
                     continue;
                 }

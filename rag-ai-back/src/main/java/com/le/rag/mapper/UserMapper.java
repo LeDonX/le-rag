@@ -11,7 +11,6 @@ import org.apache.ibatis.annotations.Select;
 /**
 * @author LeDon
 * @description 针对表【user】的数据库操作Mapper
-* @createDate 2025-02-14 21:05:04
 * @Entity com.le.rag.entity.User
 */
 @Mapper
@@ -24,7 +23,3 @@ public interface UserMapper extends BaseMapper<User> {
 
     void updateUser(User user);
 }
-
-
-
-
